@@ -2,7 +2,7 @@ import express from "express"
 import dotenv from 'dotenv'
 import database from "./config/database.js"
 import authRoutes from '../backend/routes/authRoutes.js'
-
+import cors from 'cors'
 dotenv.config()
 
 const app=express()

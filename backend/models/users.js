@@ -2,7 +2,8 @@ import mongoose from 'mongoose'
 
 const UserModel= mongoose.Schema({
     name:{
-        type:String
+        type:String,
+        required:true
     },
     email:{
         type:String,
