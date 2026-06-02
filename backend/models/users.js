@@ -11,10 +11,20 @@ const UserModel= mongoose.Schema({
         unique:true
     },
     password:{
-        type:String,
-        required:true
+        type:String
+      
     },
- 
+    
+    avatar:{
+        type:String
+    },
+
+    authMethod:{
+        type:String,
+        enum:['local','google'],
+        default:'local'
+    }
+    
 },{
     timestamps:true
 }
