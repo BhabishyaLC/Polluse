@@ -8,7 +8,7 @@ const authLogin = async (req, res) => {
     const user = await Users.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid Credentials" });
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -90,9 +90,9 @@ const authRegister = async (req, res) => {
     })
 
     return res.status(201).json({ message: "User registered Successfully!" , user:{
-        id:user._id,
-        name:user.name,
-        email:user.email
+        id:newUser._id,
+        name:newUser.name,
+        email:newUser.email
     }});
 
     

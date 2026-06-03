@@ -2,6 +2,7 @@ import express from "express"
 import dotenv from 'dotenv'
 import database from "./config/database.js"
 import authRoutes from '../backend/routes/authRoutes.js'
+import pollRoutes from '../backend/routes/pollRoutes.js'
 import cors from 'cors'
 import passport from '../backend/config/passport.js'
 
@@ -15,7 +16,7 @@ app.use(express.json())
 app.use(passport.initialize())
 
 app.use(cors({
-    origin:'http:localhost:5173',
+    origin:'http://localhost:5173',
     credentials:true
 }))
 
@@ -24,6 +25,7 @@ database()
 
 
 app.use('/api/auth', authRoutes)
+app.use('/api/poll', pollRoutes)
 
 
 
