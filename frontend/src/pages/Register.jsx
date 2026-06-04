@@ -1,8 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, UserPlus, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import API from "../../api/axios";
 
 export default function Signup() {
+
+  const [formData,setFormData]=useState({name:'', email:'', password:''})
+
+  const navigate=useNavigate()
+  const handleChange=(e)=>{
+    setFormData({...formData, [e.target.name]: e.target.value})
+  }
+  const handleRegister=async(e)=>{
+    e.preventDefault()
+    try {
+      
+      const res= await API.post('/auth/register', formData)
+      toast.success(res.data.message)
+      console.log(res.data)
+      setTimeout(()=>{
+        navigate('/login')
+      }, 2000)
+      
+
+      
+      
+    } catch (error) {
+      
+      toast.error(error.response?.data?.message)
+    }
+  }
+
   return (
     <div class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
       <div class="absolute w-87.5 h-87.5 bg-blue-500/5 rounded-full blur-[130px] top-1/4 left-1/4 pointer-events-none" />
@@ -48,7 +78,7 @@ export default function Signup() {
           </p>
         </div>
 
-        <form class="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <form class="space-y-5" onSubmit={handleRegister}>
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               Username
@@ -58,8 +88,12 @@ export default function Signup() {
                 <User size={16} />
               </span>
               <input
+                name='name'
                 type="text"
-                placeholder="johndoe"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="username"
+                required
                 class="w-full bg-slate-950 border border-slate-800/80 focus:border-cyan-500/80 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/30 transition-all"
               />
             </div>
@@ -74,7 +108,11 @@ export default function Signup() {
                 <Mail size={16} />
               </span>
               <input
+                name="email"
                 type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
                 placeholder="you@example.com"
                 class="w-full bg-slate-950 border border-slate-800/80 focus:border-cyan-500/80 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/30 transition-all"
               />
@@ -90,8 +128,12 @@ export default function Signup() {
                 <Lock size={16} />
               </span>
               <input
+                name="password"
                 type="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Minimum 8 characters"
+                required
                 class="w-full bg-slate-950 border border-slate-800/80 focus:border-cyan-500/80 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/30 transition-all"
               />
             </div>
@@ -107,7 +149,20 @@ export default function Signup() {
             Get Started
           </motion.button>
         </form>
-
+        <h1 className=" text-center">or,</h1>
+          <a
+            href="#"
+            class=" mt-2 bg-white w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-200 transition"
+          >
+            <img
+              src="https://banner2.cleanpng.com/20240216/bqs/transparent-google-logo-google-logo-green-and-blue-g-in-1710875641440.webp"
+              alt="Google"
+              class="h-5 w-5 mr-2"
+            />
+            <span>
+              <button className=" cursor-pointer text-gray-700" onClick={()=>window.open("http://localhost:3000/api/auth/google","_self")}>Signup with Google</button>
+            </span>
+          </a>
         <p class="text-center text-xs text-slate-400 mt-6">
           Already have an account?{" "}
           <a
@@ -116,6 +171,7 @@ export default function Signup() {
           >
             Log in instead
           </a>
+          
         </p>
       </motion.div>
     </div>

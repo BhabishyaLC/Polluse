@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {useNavigate} from 'react-router-dom'
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 import API from "../../api/axios.js";
 
 
@@ -19,11 +20,11 @@ const Login = () => {
 
     try {
       const res= await API.post('/auth/login', formData)
-      console.log(res.data.user)
+      toast.success(res.data.message)
       navigate('/dashboard')
     } catch (error) {
-      const message = error.res?.data?.message 
-      console.log(message)
+      const message = error.response?.data?.message || "Something went wrong"
+      toast.error(message)
     }
   }
   return (
@@ -141,6 +142,7 @@ const Login = () => {
           >
             Sign up for free
           </a>
+          
         </p>
       </motion.div>
     </div>

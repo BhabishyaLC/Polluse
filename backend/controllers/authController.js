@@ -31,13 +31,14 @@ const authLogin = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({ message: "Login successfull", user:{
-        id:user._id,
-        name:user.name,
-        email:user.email
-    } });
-
-    
+    return res.status(200).json({
+      message: "Login successfull",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.log(error);
   }
@@ -47,17 +48,9 @@ const authRegister = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    
-
-    if (!email || !name ||!password) {
+    if (!email || !name || !password) {
       res.status(400).json({ message: "Enter credentials..." });
       return;
-    }
-
-    if (password.length < 8) {
-      return res
-        .status(400)
-        .json({ message: "Password length must be above 8 characters" });
     }
 
     const existingUser = await Users.findOne({ email });
@@ -66,36 +59,42 @@ const authRegister = async (req, res) => {
       res.status(400).json({ message: "User already exist..." });
       return;
     }
+    if (password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password length must be above 8 characters" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser=await Users.create({
+    const newUser = await Users.create({
       name: name,
       email: email,
       password: hashedPassword,
     });
 
-    const payload={
-        id:newUser._id,
-        name:newUser.name
-    }
+    const payload = {
+      id: newUser._id,
+      name: newUser.name,
+    };
 
-    const token=generateToken(payload)
+    const token = generateToken(payload);
 
-    res.cookie("token",token,{
-        httpOnly:true,
-        secure:process.env.NODE_ENV==="production",
-        sameSite:"Lax",
-        maxAge:24*60*60*1000
-    })
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
-    return res.status(201).json({ message: "User registered Successfully!" , user:{
-        id:newUser._id,
-        name:newUser.name,
-        email:newUser.email
-    }});
-
-    
+    return res.status(201).json({
+      message: "User registered Successfully!",
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
+    });
   } catch (error) {
     console.log(error);
   }
