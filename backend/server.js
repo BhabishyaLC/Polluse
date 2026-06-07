@@ -5,6 +5,8 @@ import authRoutes from '../backend/routes/authRoutes.js'
 import pollRoutes from '../backend/routes/pollRoutes.js'
 import cors from 'cors'
 import passport from '../backend/config/passport.js'
+import cookieParser from 'cookie-parser'
+import { requireAuth } from "./middleware/jwt.js"
 
 
 dotenv.config()
@@ -20,12 +22,21 @@ app.use(cors({
     credentials:true
 }))
 
+app.use(cookieParser())
 
 database()
 
 
 app.use('/api/auth', authRoutes)
 app.use('/api/poll', pollRoutes)
+
+app.get("/api/me",requireAuth, (req,res)=>{
+    if(!req.user){
+        return res.status(400).json({message:"Unauthorized"})
+    }
+    res.status(200).json({user:req.user})
+
+})
 
 
 

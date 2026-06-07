@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
@@ -15,45 +15,52 @@ import {
 } from "lucide-react";
 import API from "../../api/axios.js";
 import toast from "react-hot-toast";
+import { userStore } from "./store/userStore.js";
 export default function Dashboard() {
-  const [data, setData] = useState({ question: "", options: ["","","",""] });
+  const [data, setData] = useState({ question: "", options: ["", "", "", ""] });
 
   const option = ["A", "B", "C", "D"];
+
+  const { user, getUser } = userStore();
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
   const handleOptionChange = (e) => {
-  const index = parseInt(e.target.dataset.index, 10);
-  const newValue = e.target.value;
+    const index = parseInt(e.target.dataset.index, 10);
+    const newValue = e.target.value;
+
+    const updatedOptions = [...data.options];
+    updatedOptions[index] = newValue;
+
+    setData({
+      ...data,
+      options: updatedOptions,
+    });
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
 
-  const updatedOptions = [...data.options];
-  updatedOptions[index] = newValue;
 
-  setData({
-    ...data,
-    options: updatedOptions
-  });
-};
-
-
-  const handleSubmit=async(e)=>{
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
-      const res=await API.post('/poll/create', data)
+      const res = await API.post("/poll/create", data);
 
-      toast.success('Poll is active now...')
+      toast.success("Poll is active now...");
 
-      setData('')
+      setData("");
     } catch (error) {
-      console.log(error)
-      const message=error.response?.data?.message || "Something went wrong"
-      toast.error(message)
+      console.log(error);
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
     }
-  }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -92,7 +99,7 @@ export default function Dashboard() {
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-600 font-medium">
             <User size={13} class="text-slate-500" />
-            <span>Workspace</span>
+            <span>{user.name}</span>
           </div>
           <button class="text-slate-400 hover:text-rose-500 transition-colors p-2 rounded-xl hover:bg-rose-50 cursor-pointer">
             <LogOut size={16} />
@@ -182,24 +189,22 @@ export default function Dashboard() {
               />
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-             {option.map((opt,i)=>(
-              <div key={i}>
+              {option.map((opt, i) => (
+                <div key={i}>
                   <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Option {i+1}
+                    Option {i + 1}
                   </label>
                   <input
                     name="options"
                     type="text"
                     data-index={i}
-                    value={data.options[i] || ''}
+                    value={data.options[i] || ""}
                     onChange={handleOptionChange}
                     placeholder={`Choice ${String.fromCharCode(65 + i)}`}
                     class="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 rounded-xl px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
                   />
                 </div>
-             ))}
-                
-          
+              ))}
             </div>
             <div class="flex justify-end pt-2">
               <motion.button
