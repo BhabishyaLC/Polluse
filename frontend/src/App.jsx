@@ -5,6 +5,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./pages/Dashboard.jsx";
+import Polls from "./pages/Polls.jsx";
 function App() {
   return (
     <>
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/polls" element={<Polls />} />
         
       </Routes>
       

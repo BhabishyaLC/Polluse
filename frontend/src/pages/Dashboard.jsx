@@ -16,6 +16,7 @@ import {
 import API from "../../api/axios.js";
 import toast from "react-hot-toast";
 import { userStore } from "./store/userStore.js";
+import Polls from "./Polls.jsx";
 export default function Dashboard() {
   const [data, setData] = useState({ question: "", options: ["", "", "", ""] });
 
@@ -54,7 +55,8 @@ export default function Dashboard() {
 
       toast.success("Poll is active now...");
 
-      setData("");
+      setData({question:"" , options:["","","",""]})
+     
     } catch (error) {
       console.log(error);
       const message = error.response?.data?.message || "Something went wrong";
@@ -99,7 +101,7 @@ export default function Dashboard() {
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-600 font-medium">
             <User size={13} class="text-slate-500" />
-            <span>{user.name}</span>
+            <span>{user?.name}</span>
           </div>
           <button class="text-slate-400 hover:text-rose-500 transition-colors p-2 rounded-xl hover:bg-rose-50 cursor-pointer">
             <LogOut size={16} />
@@ -176,7 +178,7 @@ export default function Dashboard() {
 
           <form class="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+              <label class="block text-[10px] font-bold text-black uppercase tracking-widest mb-1.5">
                 Prompt Question
               </label>
               <input
@@ -184,6 +186,7 @@ export default function Dashboard() {
                 value={data.question}
                 onChange={handleChange}
                 type="text"
+                required
                 placeholder="What statement or question are we analyzing?"
                 class="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
               />
@@ -191,7 +194,7 @@ export default function Dashboard() {
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               {option.map((opt, i) => (
                 <div key={i}>
-                  <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                  <label class="block text-[10px] font-bold text-black uppercase tracking-widest mb-1.5">
                     Option {i + 1}
                   </label>
                   <input
@@ -200,6 +203,7 @@ export default function Dashboard() {
                     data-index={i}
                     value={data.options[i] || ""}
                     onChange={handleOptionChange}
+                    required
                     placeholder={`Choice ${String.fromCharCode(65 + i)}`}
                     class="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 rounded-xl px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
                   />
@@ -218,95 +222,8 @@ export default function Dashboard() {
             </div>
           </form>
         </motion.section>
-
-        <motion.section variants={itemVariants} class="space-y-3">
-          <div class="flex items-center justify-between mb-1 px-1">
-            <div class="flex items-center gap-2">
-              <BarChart3 size={15} class="text-slate-500" />
-              <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Active System Feeds
-              </h2>
-            </div>
-          </div>
-
-          <div class="bg-white/90 border border-slate-200 p-4 rounded-xl shadow-sm hover:border-slate-300 transition-all backdrop-blur-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 border-b border-slate-100">
-              <div>
-                <div class="flex items-center gap-2 mb-0.5">
-                  <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded">
-                    Sync Active
-                  </span>
-                  <span class="text-[11px] text-slate-400">2h ago</span>
-                </div>
-                <h4 class="text-sm font-semibold text-slate-800">
-                  Preferred State Management Tool for 2026?
-                </h4>
-              </div>
-              <div class="flex items-center space-x-1 self-start sm:self-auto">
-                <button
-                  class="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 rounded-lg transition-colors cursor-pointer"
-                  title="Copy URL"
-                >
-                  <Copy size={13} />
-                </button>
-                <button
-                  class="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 rounded-lg transition-colors cursor-pointer"
-                  title="Open View"
-                >
-                  <ExternalLink size={13} />
-                </button>
-                <button
-                  class="p-2 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-500 rounded-lg transition-colors cursor-pointer"
-                  title="Terminate"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            </div>
-
-            <div class="pt-2.5 flex items-center justify-between text-xs text-slate-500">
-              <span>
-                Total Payload:{" "}
-                <strong class="text-slate-700 font-medium">432 records</strong>
-              </span>
-              <span class="text-slate-700 font-semibold bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md text-[11px]">
-                Zustand Leading (54%)
-              </span>
-            </div>
-          </div>
-
-          <div class="bg-white/60 border border-slate-200/80 p-4 rounded-xl shadow-sm opacity-70 backdrop-blur-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 border-b border-slate-100">
-              <div>
-                <div class="flex items-center gap-2 mb-0.5">
-                  <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded">
-                    Archived
-                  </span>
-                  <span class="text-[11px] text-slate-400">3d ago</span>
-                </div>
-                <h4 class="text-sm font-semibold text-slate-600">
-                  Is serverless deployment the future of backends?
-                </h4>
-              </div>
-              <div class="flex items-center space-x-1 self-start sm:self-auto">
-                <button
-                  class="p-2 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-500 rounded-lg transition-colors cursor-pointer"
-                  title="Purge"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            </div>
-
-            <div class="pt-2.5 flex items-center justify-between text-xs text-slate-400">
-              <span>Final Payload: 988 records</span>
-              <span class="text-slate-500 font-medium flex items-center gap-1 text-[11px]">
-                <CheckCircle size={12} class="text-slate-400" /> Yes absolute
-                (78%)
-              </span>
-            </div>
-          </div>
-        </motion.section>
+            <Polls/>
+   
       </motion.main>
     </div>
   );
