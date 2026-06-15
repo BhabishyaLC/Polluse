@@ -17,12 +17,16 @@ import API from "../../api/axios.js";
 import toast from "react-hot-toast";
 import { userStore } from "./store/userStore.js";
 import Polls from "./Polls.jsx";
+import { pollStore } from "./store/pollStore.js";
 export default function Dashboard() {
   const [data, setData] = useState({ question: "", options: ["", "", "", ""] });
 
   const option = ["A", "B", "C", "D"];
 
   const { user, getUser } = userStore();
+  const { getPoll } = pollStore();
+  
+
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -55,6 +59,7 @@ export default function Dashboard() {
 
       toast.success("Poll is active now...");
 
+      getPoll()
       setData({question:"" , options:["","","",""]})
      
     } catch (error) {
