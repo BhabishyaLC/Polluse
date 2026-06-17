@@ -7,7 +7,9 @@ import cors from 'cors'
 import passport from '../backend/config/passport.js'
 import cookieParser from 'cookie-parser'
 import { requireAuth } from "./middleware/jwt.js"
-
+import setupPollSocket from "./controllers/pollSocket.js"
+import http from 'http'
+import { Server } from "socket.io"
 
 dotenv.config()
 
@@ -26,6 +28,12 @@ app.use(cookieParser())
 
 database()
 
+const server=http.createServer(app)
+
+const io=new Server(server,{
+    cors:{origin:'*'}
+})
+
 
 app.use('/api/auth', authRoutes)
 app.use('/api/poll', pollRoutes)
@@ -38,8 +46,7 @@ app.get("/api/me",requireAuth, (req,res)=>{
 
 })
 
-
-
+setupPollSocket(io)
 
 
 app.listen(process.env.PORT,()=>{
@@ -49,3 +56,5 @@ app.listen(process.env.PORT,()=>{
 app.get('/',(req,res)=>{
     res.send("Server is active")    
 })
+
+server.listen(3001,()=>console.log("Server running..."))

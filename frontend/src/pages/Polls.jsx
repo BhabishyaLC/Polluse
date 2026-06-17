@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import { pollStore } from "./store/pollStore.js";
 import { formatDistanceToNow } from "date-fns";
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
+import {io} from 'socket.io-client'
+
+const socket=io('http://localhost:3001')
 const Polls = () => {
   const totalVotes = 1010;
   const isVoted = false;
@@ -47,9 +51,16 @@ const Polls = () => {
   ];
 
   const { poll, getPoll } = pollStore();
+  const [voted,setVotes]=useState(false)
+  const [fingerprint,setFingerPrint]=useState(null)
+
 
   useEffect(() => {
     getPoll();
+
+    
+
+
   }, []);
 
   console.log(poll);
