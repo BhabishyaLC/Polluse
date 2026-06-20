@@ -46,6 +46,8 @@ app.get("/api/me",requireAuth, (req,res)=>{
 
 })
 
+app.use('/api',pollRoutes)
+
 setupPollSocket(io)
 
 

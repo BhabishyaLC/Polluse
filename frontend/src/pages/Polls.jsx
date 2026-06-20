@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import { pollStore } from "./store/pollStore.js";
 import { formatDistanceToNow } from "date-fns";
-import FingerprintJS from '@fingerprintjs/fingerprintjs'
-import {io} from 'socket.io-client'
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { io } from "socket.io-client";
 
-const socket=io('http://localhost:3001')
+const socket = io("http://localhost:3001");
 const Polls = () => {
   const totalVotes = 1010;
   const isVoted = false;
@@ -51,17 +51,50 @@ const Polls = () => {
   ];
 
   const { poll, getPoll } = pollStore();
-  const [voted,setVotes]=useState(false)
-  const [fingerprint,setFingerPrint]=useState(null)
-
+  const [voted, setVotes] = useState(false);
+  const [fingerprint, setFingerPrint] = useState(null);
+  const [copy, setCopy] = useState(false);
 
   useEffect(() => {
     getPoll();
-
-    
-
-
   }, []);
+
+  useEffect(() => {
+    const loadFingerprint = async () => {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      setFingerprint(result.visitorId);
+    };
+    loadFingerprint();
+
+    socket.emit("join-poll", poll._id);
+
+    socket.on("vote-update", (updatedOptions) => {
+      setOptions(updatedOptions);
+    });
+
+    socket.on("vote-error", (msg) => {
+      setError(msg);
+      if (msg.includes("already voted")) setVoted(true);
+    });
+
+    return () => {
+      socket.off("vote-update");
+      socket.off("vote-error");
+    };
+  }, [poll._id]);
+
+  const castVote = (optionIndex) => {
+    if (voted || !fingerprint) return;
+
+    socket.emit("cast-vote", {
+      pollId: poll._id,
+      optionIndex,
+      fingerprint,
+    });
+
+    setVoted(true);
+  };
 
   console.log(poll);
 
@@ -78,6 +111,18 @@ const Polls = () => {
       transition: { duration: 0.4, ease: "easeOut" },
     },
   };
+
+  const copyLink = (pollId) => {
+    poll.forEach((item) => {
+      if (item._id === pollId) {
+        const shareLink = `${window.location.origin}/p/${item.shareToken}`;
+        navigator.clipboard.writeText(shareLink);
+        setCopy(true);
+        setTimeout(() => setCopy(false), 2000);
+      }
+    });
+  };
+
   return (
     <div>
       <motion.section variants={itemVariants} class="space-y-3">
@@ -294,12 +339,16 @@ const Polls = () => {
                       />
                     </svg>
                     <span className="text-xs text-black font-mono truncate">
-                      pollpulse.app/p/{poll.shareToken}
+                      pollpulse.app/p/{item.shareToken}
                     </span>
                   </div>
 
-                  <button className="shrink-0 bg-white/3 text-black cursor-pointer text-xs font-medium px-4 py-3 rounded-xl hover:bg-white transition-colors">
-                    Copy link
+                  <button
+                    type="button"
+                    onClick={() => copyLink(item._id)}
+                    className="shrink-0 bg-white/3 text-black cursor-pointer text-xs font-medium px-4 py-3 rounded-xl hover:bg-white transition-colors"
+                  >
+                    {copy ? "Copied" : "Copy Link"}
                   </button>
                 </div>
               </div>

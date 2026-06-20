@@ -1,9 +1,10 @@
 import Poll from "../models/poll.js";
 import Vote from "../models/vote.js";
 
+
 export default function setupPollSocket(io) {
   io.on("connection", (socket) => {
-    socket.io("join-poll", async (pollId) => {
+    socket.on("join-poll", async (pollId) => {
       socket.join(pollId);
 
       try {
@@ -15,7 +16,7 @@ export default function setupPollSocket(io) {
       }
     });
 
-    socket.io("cast-vote", async ({ pollId, optionIndex, fingerprint }) => {
+    socket.on("cast-vote", async ({ pollId, optionIndex, fingerprint }) => {
       try {
         await Vote.create({ pollId, optionIndex, fingerprint });
 

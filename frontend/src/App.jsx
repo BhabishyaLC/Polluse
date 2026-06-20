@@ -6,6 +6,7 @@ import Register from "./pages/Register.jsx";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./pages/Dashboard.jsx";
 import Polls from "./pages/Polls.jsx";
+import SharedPoll from "./pages/SharedPoll.jsx";
 function App() {
   return (
     <>
@@ -17,7 +18,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/polls" element={<Polls />} />
-        
+        <Route path="/p/:shareToken" element={<SharedPoll/>} /> 
       </Routes>
       
       </>
