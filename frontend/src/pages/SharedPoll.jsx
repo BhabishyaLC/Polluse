@@ -2,18 +2,23 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Polls from "./Polls.jsx";
 import API from "../../api/axios.js";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { io } from "socket.io-client";
 
+const socket = io("http://localhost:3001");
 function SharedPoll() {
   const { shareToken } = useParams();
   const [poll, setPoll] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [voted, setVotes] = useState(false);
+  const [votedIndex, setVotedIndex] = useState(null);
   const [copy, setCopy] = useState(false);
+  const [fingerprint, setFingerPrint] = useState(null);
 
   const totalVotes = 1010;
   const isVoted = false;
-  const votedIndex = 0;
+
   const viewerCount = 247;
 
   const barColors = [
@@ -71,6 +76,66 @@ function SharedPoll() {
     fetchPoll();
   }, [shareToken]);
 
+  useEffect(() => {
+    const loadFingerprint = async () => {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      setFingerPrint(result.visitorId);
+    };
+    loadFingerprint();
+    if (!poll) return;
+    socket.emit("join-poll", poll._id);
+
+    socket.on("vote-update", (updatedOptions) => {
+      setOptions(updatedOptions);
+    });
+
+    socket.on("vote-error", (msg) => {
+      setError(msg);
+      if (msg.includes("already voted")) setVoted(true);
+    });
+
+    return () => {
+      socket.off("vote-update");
+      socket.off("vote-error");
+    };
+  }, [poll]);
+
+  const castVote = (optionIndex) => {
+    if (voted || !fingerprint) return;
+
+    socket.emit("cast-vote", {
+      pollId: poll._id,
+      optionIndex,
+      fingerprint,
+    });
+
+    setVoted(true);
+  };
+
+
+    const handleVote = async (optionIndex) => {
+      try {
+        const res = await API.post(`/poll/${poll.shareToken}/vote`, {
+          optionIndex,
+        });
+
+        setPoll((prev) => ({ ...prev, options: res.data.options }));
+
+        setVotes(true);
+        setVotedIndex(optionIndex);
+
+        localStorage.setItem(`voted_${poll.shareToken}`, optionIndex);
+      } catch (error) {
+        if (error.response?.status === 409) {
+          setVotes(true);
+        } else {
+          console.log(error);
+        }
+      }
+    };
+  
+
   if (loading) return <p>Loading poll...</p>;
   if (error) return <p>{error}</p>;
 
@@ -93,6 +158,7 @@ function SharedPoll() {
                 poll.options.map((opt, i) => (
                   <button
                     key={i}
+                    onClick={() => handleVote(i)}
                     className={`
                     group w-full flex items-center gap-4  rounded-xl cursor-pointer
                     bg-gray-100 border border-white
@@ -119,7 +185,7 @@ function SharedPoll() {
                     </div>
 
                     <span className="text-sm text-black group-hover:text-xl duration-150 flex-1 ">
-                      {opt}
+                      {opt.text}
                     </span>
 
                     <svg
@@ -261,7 +327,6 @@ function SharedPoll() {
               </div>
             </div>
           </div>
-       
         </div>
       </div>
     </>

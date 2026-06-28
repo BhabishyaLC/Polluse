@@ -59,43 +59,6 @@ const Polls = () => {
     getPoll();
   }, []);
 
-  useEffect(() => {
-    const loadFingerprint = async () => {
-      const fp = await FingerprintJS.load();
-      const result = await fp.get();
-      setFingerprint(result.visitorId);
-    };
-    loadFingerprint();
-
-    socket.emit("join-poll", poll._id);
-
-    socket.on("vote-update", (updatedOptions) => {
-      setOptions(updatedOptions);
-    });
-
-    socket.on("vote-error", (msg) => {
-      setError(msg);
-      if (msg.includes("already voted")) setVoted(true);
-    });
-
-    return () => {
-      socket.off("vote-update");
-      socket.off("vote-error");
-    };
-  }, [poll._id]);
-
-  const castVote = (optionIndex) => {
-    if (voted || !fingerprint) return;
-
-    socket.emit("cast-vote", {
-      pollId: poll._id,
-      optionIndex,
-      fingerprint,
-    });
-
-    setVoted(true);
-  };
-
   console.log(poll);
 
   const containerVariants = {
@@ -180,7 +143,7 @@ const Polls = () => {
                           </div>
 
                           <span className="text-sm text-black group-hover:text-xl duration-150 flex-1 ">
-                            {opt}
+                            {opt.text}
                           </span>
 
                           <svg

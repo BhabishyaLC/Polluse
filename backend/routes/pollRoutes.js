@@ -2,6 +2,7 @@ import express from 'express'
 import {createPollController,getPollController} from '../controllers/pollController.js'
 import { requireAuth } from '../middleware/jwt.js'
 import Poll from '../models/poll.js'
+import vote from '../controllers/voteController.js'
 const router= express.Router()
 
 router.post('/create', requireAuth ,createPollController)
@@ -22,6 +23,8 @@ router.get('/:shareToken',async(req,res)=>{
            res.status(500).json({ message: "Server error" });
     }
 })
+
+router.post("/:shareToken/vote", vote);
 
 
 
